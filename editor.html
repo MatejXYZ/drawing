@@ -4,6 +4,7 @@
 <head>
     <title>Drawing</title>
     <link rel="stylesheet" href="editor.css">
+    <link rel="stylesheet" href="nav.css">
 </head>
 
 <body>
@@ -11,7 +12,19 @@
         <a href="editor.html">editor</a>
         <a href="gallery.html">gallery</a>
     </nav>
-    <canvas></canvas>
+    <main>
+        <form>
+            <label for="color">Color</label>
+            <input id="color" type="color">
+            <label for="size">Size</label>
+            <input id="size" type="range">
+            <label for="eraser">Eraser</label>
+            <input id="eraser" type="checkbox">
+        </form>
+        <canvas></canvas>
+        <button>Save to gallery</button>
+        <button>Download</button>
+    </main>
 </body>
 
 </html>
