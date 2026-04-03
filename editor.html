@@ -3,8 +3,10 @@
 
 <head>
     <title>Drawing</title>
+    <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="editor.css">
     <link rel="stylesheet" href="nav.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
@@ -16,14 +18,20 @@
         <form>
             <label for="color">Color</label>
             <input id="color" type="color">
+
             <label for="size">Size</label>
             <input id="size" type="range">
+
             <label for="eraser">Eraser</label>
-            <input id="eraser" type="checkbox">
+            <input type="radio" id="eraser" name="tool" value="Eraser" autocomplete="off">
+            <label for="brush">Brush</label>
+            <input type="radio" id="brush" name="tool" value="Brush" checked autocomplete="off">
         </form>
         <canvas></canvas>
-        <button>Save to gallery</button>
-        <button>Download</button>
+        <div class="canvas-control">
+            <button>Save to gallery</button>
+            <button>Download</button>
+        </div>
     </main>
 </body>
 

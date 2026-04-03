@@ -1,0 +1,16 @@
+body {
+  background-color: midnightblue;
+  color: wheat;
+  font-size: 16px;
+}
+
+button {
+  padding: 16px 24px;
+  font-size: 24px;
+  font-weight: bold;
+  background-color: wheat;
+  color: midnightblue;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+}

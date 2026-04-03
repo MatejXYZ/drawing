@@ -1,5 +1,18 @@
 canvas {
-  border: solid 2px black;
-  min-width: 500px;
-  min-height: 500px;
+  border: solid 2px wheat;
+  width: 100%;
+  max-width: 1200px;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+}
+
+form {
+  padding: 24px;
+}
+
+.canvas-control {
+  padding: 24px;
 }

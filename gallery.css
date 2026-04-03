@@ -1,5 +1,4 @@
-canvas {
-  border: solid 2px black;
-  min-width: 500px;
-  min-height: 500px;
+main {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 }
