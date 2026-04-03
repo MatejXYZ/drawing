@@ -1,7 +1,10 @@
 canvas {
+  touch-action: none;
+  user-select: none;
+  overscroll-behavior: contain;
   border: solid 2px wheat;
-  width: 100%;
-  max-width: 1200px;
+  width: 500px;
+  height: 500px;
 }
 
 main {
