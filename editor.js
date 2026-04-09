@@ -11,6 +11,8 @@ const ctx = canvas.getContext("2d");
 
 ctx.fillStyle = "#fff";
 ctx.fillRect(0, 0, 1000, 1000);
+ctx.lineCap = "round";
+ctx.lineJoin = "round";
 
 const rect = canvas.getBoundingClientRect();
 
@@ -20,23 +22,61 @@ const getCoordinates = (x, y) => {
   return [x * scale, y * scale];
 };
 
+let points = [];
+
 const draw = (x, y) => {
-  ctx.fillStyle = isEraser ? backgroundColor : color;
+  points.push({ x, y });
+};
+
+const render = () => {
+  color = isEraser ? backgroundColor : color;
   ctx.beginPath();
-  ctx.arc(...getCoordinates(x, y), brushSize, 0, 2 * Math.PI);
-  ctx.fill();
+
+  if (points.length == 1) {
+    ctx.fillStyle = color;
+    ctx.arc(
+      ...getCoordinates(points[0].x, points[0].y),
+      brushSize / 2,
+      0,
+      Math.PI * 2,
+    );
+    ctx.fill();
+  } else {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = brushSize;
+    ctx.moveTo(...getCoordinates(points[0].x, points[0].y));
+
+    if (points.length == 2) {
+      ctx.lineTo(...getCoordinates(points[i].x, points[i].y));
+    } else if (points.length > 2) {
+      for (let i = 1; i < points.length - 1; i++) {
+        const midX = (points[i].x + points[i + 1].x) / 2;
+        const midY = (points[i].y + points[i + 1].y) / 2;
+
+        ctx.quadraticCurveTo(
+          ...getCoordinates(points[i].x, points[i].y),
+          ...getCoordinates(midX, midY),
+        );
+      }
+    }
+
+    ctx.stroke();
+  }
 };
 
 const tryDraw = (e) => {
   e.preventDefault();
   if (isDrawing) {
     draw(e.clientX - rect.left, e.clientY - rect.top);
+
+    requestAnimationFrame(render);
   }
 };
 
 canvas.addEventListener("pointerdown", (e) => {
   canvas.setPointerCapture(e.pointerId);
   isDrawing = true;
+  points = [];
   tryDraw(e);
 });
 
