@@ -47,7 +47,7 @@ const render = () => {
     ctx.moveTo(...getCoordinates(points[0].x, points[0].y));
 
     if (points.length == 2) {
-      ctx.lineTo(...getCoordinates(points[i].x, points[i].y));
+      ctx.lineTo(...getCoordinates(points[0].x, points[0].y));
     } else if (points.length > 2) {
       for (let i = 1; i < points.length - 1; i++) {
         const midX = (points[i].x + points[i + 1].x) / 2;
@@ -106,4 +106,33 @@ brushRadio.addEventListener("change", (e) => {
 });
 eraserRadio.addEventListener("change", (e) => {
   isEraser = true;
+});
+
+let storeId = "s";
+let imageId = localStorage.getItem("idb-last-image");
+if (!imageId) {
+  imageId = 0;
+  localStorage.setItem("idb-last-image", imageId);
+} else imageId++;
+
+console.log(imageId);
+
+let db;
+const req = window.indexedDB.open("db", 1);
+req.onupgradeneeded = () => {
+  if (!req.result.objectStoreNames.contains(storeId)) {
+    req.result.createObjectStore(storeId);
+  }
+};
+req.onsuccess = () => (db = req.result);
+
+const saveButton = document.querySelector("button#save");
+saveButton.addEventListener("click", () => {
+  if (!db) return console.warn("DB not ready");
+
+  canvas.toBlob((blob) => {
+    const tx = db.transaction(storeId, "readwrite");
+    tx.objectStore(storeId).put(blob, imageId++);
+    localStorage.setItem("idb-last-image", imageId);
+  });
 });
