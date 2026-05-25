@@ -5,6 +5,7 @@ canvas {
   border: solid 2px wheat;
   width: 500px;
   height: 500px;
+  cursor: crosshair;
 }
 
 main {
