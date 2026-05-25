@@ -11,7 +11,7 @@ canvas {
     0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-main {
+#editor {
   display: flex;
   flex-direction: column;
   align-items: center;

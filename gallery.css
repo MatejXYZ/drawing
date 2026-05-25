@@ -1,8 +1,9 @@
-main {
+#gallery {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  grid-auto-rows: min-content;
 }
 
 figure > img {
-  max-width: 200px;
+  width: 100%;
 }

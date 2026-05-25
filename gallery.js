@@ -1,19 +1,25 @@
 import { loadImages } from "./database.js";
 
-// create gallery
+const container = document.querySelector("#gallery");
 
-const container = document.querySelector("main");
+export const showGallery = () => {
+  container.classList.toggle("hidden", false);
+  loadImages((id, url, onload) => {
+    const figure = document.createElement("figure");
+    const img = document.createElement("img");
 
-loadImages((id, url, onload) => {
-  const figure = document.createElement("figure");
-  const img = document.createElement("img");
+    img.src = url;
+    img.id = `image${id}`;
+    img.alt = `Illustration ${id}`;
 
-  img.src = url;
-  img.id = `image${id}`;
-  img.alt = `Illustration ${id}`;
+    figure.appendChild(img);
+    container.appendChild(figure);
 
-  figure.appendChild(img);
-  container.appendChild(figure);
+    img.onload = onload;
+  });
+};
 
-  img.onload = onload;
-});
+export const hideGallery = () => {
+  container.classList.toggle("hidden", true);
+  container.innerHTML = "";
+};

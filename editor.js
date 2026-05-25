@@ -1,5 +1,7 @@
 import { ifReadyDB, saveBlobToDB } from "./database.js";
 
+const editorPage = document.querySelector("#editor");
+
 // config
 
 const backgroundColor = "#fff";
@@ -15,11 +17,6 @@ let isEraser = false;
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 
-ctx.fillStyle = "#fff";
-ctx.fillRect(0, 0, 1000, 1000);
-ctx.lineCap = "round";
-ctx.lineJoin = "round";
-
 const rect = canvas.getBoundingClientRect();
 
 // drawing
@@ -31,55 +28,6 @@ const getCoordinates = (x, y) => {
 };
 
 let points = [];
-
-const draw = (x, y) => {
-  points.push({ x, y });
-};
-
-const render = () => {
-  let lColor = isEraser ? backgroundColor : color;
-  ctx.beginPath();
-
-  if (points.length == 1) {
-    ctx.fillStyle = lColor;
-    ctx.arc(
-      ...getCoordinates(points[0].x, points[0].y),
-      brushSize / 2,
-      0,
-      Math.PI * 2,
-    );
-    ctx.fill();
-  } else {
-    ctx.strokeStyle = lColor;
-    ctx.lineWidth = brushSize;
-    ctx.moveTo(...getCoordinates(points[0].x, points[0].y));
-
-    if (points.length == 2) {
-      ctx.lineTo(...getCoordinates(points[0].x, points[0].y));
-    } else if (points.length > 2) {
-      for (let i = 1; i < points.length - 1; i++) {
-        const midX = (points[i].x + points[i + 1].x) / 2;
-        const midY = (points[i].y + points[i + 1].y) / 2;
-
-        ctx.quadraticCurveTo(
-          ...getCoordinates(points[i].x, points[i].y),
-          ...getCoordinates(midX, midY),
-        );
-      }
-    }
-
-    ctx.stroke();
-  }
-};
-
-const tryDraw = (e) => {
-  e.preventDefault();
-  if (isDrawing) {
-    draw(e.clientX - rect.left, e.clientY - rect.top);
-
-    requestAnimationFrame(render);
-  }
-};
 
 // pointer events
 
@@ -148,3 +96,65 @@ downloadButton.addEventListener("click", () => {
   a.click();
   a.remove();
 });
+
+const draw = (x, y) => {
+  points.push({ x, y });
+};
+
+const render = () => {
+  let lColor = isEraser ? backgroundColor : color;
+  ctx.beginPath();
+
+  if (points.length == 1) {
+    ctx.fillStyle = lColor;
+    ctx.arc(
+      ...getCoordinates(points[0].x, points[0].y),
+      brushSize / 2,
+      0,
+      Math.PI * 2,
+    );
+    ctx.fill();
+  } else {
+    ctx.strokeStyle = lColor;
+    ctx.lineWidth = brushSize;
+    ctx.moveTo(...getCoordinates(points[0].x, points[0].y));
+
+    if (points.length == 2) {
+      ctx.lineTo(...getCoordinates(points[0].x, points[0].y));
+    } else if (points.length > 2) {
+      for (let i = 1; i < points.length - 1; i++) {
+        const midX = (points[i].x + points[i + 1].x) / 2;
+        const midY = (points[i].y + points[i + 1].y) / 2;
+
+        ctx.quadraticCurveTo(
+          ...getCoordinates(points[i].x, points[i].y),
+          ...getCoordinates(midX, midY),
+        );
+      }
+    }
+
+    ctx.stroke();
+  }
+};
+
+const tryDraw = (e) => {
+  e.preventDefault();
+  if (isDrawing) {
+    draw(e.clientX - rect.left, e.clientY - rect.top);
+
+    requestAnimationFrame(render);
+  }
+};
+
+export const showEditor = () => {
+  editorPage.classList.toggle("hidden", false);
+
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, 1000, 1000);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+};
+
+export const hideEditor = () => {
+  editorPage.classList.toggle("hidden", true);
+};

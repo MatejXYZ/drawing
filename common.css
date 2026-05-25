@@ -48,3 +48,7 @@ button {
     background-color: var(--primary-hover);
   }
 }
+
+main > div.hidden {
+  visibility: collapse;
+}
