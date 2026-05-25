@@ -1,47 +1,19 @@
-const storeId = "s";
-let db;
+import { loadImages } from "./database.js";
+
+// create gallery
+
 const container = document.querySelector("main");
 
-const req = window.indexedDB.open("db", 1);
+loadImages((id, url, onload) => {
+  const figure = document.createElement("figure");
+  const img = document.createElement("img");
 
-req.onupgradeneeded = () => {
-  if (!req.result.objectStoreNames.contains(storeId)) {
-    req.result.createObjectStore(storeId);
-  }
-};
+  img.src = url;
+  img.id = `image${id}`;
+  img.alt = `Illustration ${id}`;
 
-req.onsuccess = () => {
-  db = req.result;
+  figure.appendChild(img);
+  container.appendChild(figure);
 
-  const tx = db.transaction(storeId, "readonly");
-  const store = tx.objectStore(storeId);
-
-  const keysReq = store.getAllKeys();
-
-  keysReq.onsuccess = () => {
-    const keys = keysReq.result;
-
-    keys.forEach((id) => {
-      const x = store.get(id);
-
-      x.onsuccess = () => {
-        const blob = x.result;
-        if (!blob) return;
-
-        const url = URL.createObjectURL(blob);
-
-        const figure = document.createElement("figure");
-        const img = document.createElement("img");
-
-        img.src = url;
-        img.id = `image${id}`;
-        img.alt = `Illustration ${id}`;
-
-        figure.appendChild(img);
-        container.appendChild(figure);
-
-        img.onload = () => URL.revokeObjectURL(url);
-      };
-    });
-  };
-};
+  img.onload = onload;
+});

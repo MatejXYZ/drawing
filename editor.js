@@ -1,3 +1,5 @@
+import { ifReadyDB, saveBlobToDB } from "./database.js";
+
 // config
 
 const backgroundColor = "#fff";
@@ -124,34 +126,14 @@ eraserRadio.addEventListener("change", (e) => {
   eraserRadioLabel.classList.toggle("active", true);
 });
 
-// db storage
-
-let storeId = "s";
-let imageId = localStorage.getItem("idb-last-image");
-if (!imageId) {
-  imageId = 0;
-  localStorage.setItem("idb-last-image", imageId);
-} else imageId++;
-
-let db;
-const req = window.indexedDB.open("db", 1);
-req.onupgradeneeded = () => {
-  if (!req.result.objectStoreNames.contains(storeId)) {
-    req.result.createObjectStore(storeId);
-  }
-};
-req.onsuccess = () => (db = req.result);
-
 // save
 
 const saveButton = document.querySelector("button#save");
 saveButton.addEventListener("click", () => {
-  if (!db) return console.warn("DB not ready");
-
-  canvas.toBlob((blob) => {
-    const tx = db.transaction(storeId, "readwrite");
-    tx.objectStore(storeId).put(blob, imageId++);
-    localStorage.setItem("idb-last-image", imageId);
+  ifReadyDB(() => {
+    canvas.toBlob((blob) => {
+      saveBlobToDB(blob);
+    });
   });
 });
 
