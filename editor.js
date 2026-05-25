@@ -35,11 +35,11 @@ const draw = (x, y) => {
 };
 
 const render = () => {
-  color = isEraser ? backgroundColor : color;
+  let lColor = isEraser ? backgroundColor : color;
   ctx.beginPath();
 
   if (points.length == 1) {
-    ctx.fillStyle = color;
+    ctx.fillStyle = lColor;
     ctx.arc(
       ...getCoordinates(points[0].x, points[0].y),
       brushSize / 2,
@@ -48,7 +48,7 @@ const render = () => {
     );
     ctx.fill();
   } else {
-    ctx.strokeStyle = color;
+    ctx.strokeStyle = lColor;
     ctx.lineWidth = brushSize;
     ctx.moveTo(...getCoordinates(points[0].x, points[0].y));
 
@@ -126,8 +126,6 @@ if (!imageId) {
   imageId = 0;
   localStorage.setItem("idb-last-image", imageId);
 } else imageId++;
-
-console.log(imageId);
 
 let db;
 const req = window.indexedDB.open("db", 1);
