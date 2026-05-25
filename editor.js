@@ -1,3 +1,5 @@
+// config
+
 const backgroundColor = "#fff";
 
 let scale = 2;
@@ -5,6 +7,8 @@ let scale = 2;
 let brushSize = 25;
 let color = "#000";
 let isEraser = false;
+
+// canvas init
 
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
@@ -15,6 +19,8 @@ ctx.lineCap = "round";
 ctx.lineJoin = "round";
 
 const rect = canvas.getBoundingClientRect();
+
+// drawing
 
 let isDrawing = false;
 
@@ -73,6 +79,8 @@ const tryDraw = (e) => {
   }
 };
 
+// pointer events
+
 canvas.addEventListener("pointerdown", (e) => {
   canvas.setPointerCapture(e.pointerId);
   isDrawing = true;
@@ -88,6 +96,8 @@ document.addEventListener("pointerup", (e) => {
 canvas.addEventListener("pointermove", (e) => {
   tryDraw(e);
 });
+
+// toolbar events
 
 const colorInput = document.querySelector("input[type=color]");
 colorInput.addEventListener("change", (e) => {
@@ -108,6 +118,8 @@ eraserRadio.addEventListener("change", (e) => {
   isEraser = true;
 });
 
+// db storage
+
 let storeId = "s";
 let imageId = localStorage.getItem("idb-last-image");
 if (!imageId) {
@@ -125,6 +137,8 @@ req.onupgradeneeded = () => {
   }
 };
 req.onsuccess = () => (db = req.result);
+
+// download
 
 const saveButton = document.querySelector("button#save");
 saveButton.addEventListener("click", () => {
