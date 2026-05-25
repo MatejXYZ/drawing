@@ -2,10 +2,13 @@ canvas {
   touch-action: none;
   user-select: none;
   overscroll-behavior: contain;
-  border: solid 2px wheat;
   width: 500px;
   height: 500px;
   cursor: crosshair;
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.35),
+    0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 main {
@@ -20,4 +23,34 @@ form {
 
 .canvas-control {
   padding: 24px;
+}
+
+input[type="radio"] {
+  visibility: hidden;
+}
+
+label[for="eraser"],
+label[for="brush"] {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 4px;
+  display: inline-block;
+  box-shadow: 0px 0px 8px 4px var(--shadow);
+  transition: all 0.3s;
+  color: var(--muted);
+
+  &.active {
+    background-color: var(--surface-2);
+    color: var(--primary);
+  }
+
+  &:hover {
+    background-color: var(--surface-2);
+    color: var(--text);
+  }
+
+  &.active:hover {
+    background-color: var(--surface-2);
+    color: var(--primary-hover);
+  }
 }

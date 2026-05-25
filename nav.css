@@ -3,6 +3,7 @@ nav {
   justify-content: center;
   align-items: center;
   border-bottom: solid black;
+  background-color: var(--surface);
 }
 
 nav > a {
@@ -10,10 +11,15 @@ nav > a {
   font-size: 24px;
   text-decoration: none;
   font-weight: bold;
-  color: wheat;
+  color: var(--text);
   @media (max-width: 600px) {
     & {
       font-size: 24px;
     }
+  }
+
+  &:hover {
+  }
+  &.active {
   }
 }

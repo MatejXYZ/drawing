@@ -110,12 +110,18 @@ sizeInput.addEventListener("change", (e) => {
 });
 
 const brushRadio = document.querySelector("input[id=brush]");
+const brushRadioLabel = document.querySelector("label[for=brush]");
 const eraserRadio = document.querySelector("input[id=eraser]");
+const eraserRadioLabel = document.querySelector("label[for=eraser]");
 brushRadio.addEventListener("change", (e) => {
   isEraser = false;
+  brushRadioLabel.classList.toggle("active", true);
+  eraserRadioLabel.classList.toggle("active", false);
 });
 eraserRadio.addEventListener("change", (e) => {
   isEraser = true;
+  brushRadioLabel.classList.toggle("active", false);
+  eraserRadioLabel.classList.toggle("active", true);
 });
 
 // db storage

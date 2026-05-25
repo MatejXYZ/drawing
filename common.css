@@ -1,16 +1,50 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+*:not(dialog) {
+  margin: 0;
+}
+
+* {
+  font-family: "Inter", sans-serif;
+}
+
+:root {
+  --bg: #0a1c22;
+  --surface: #112b34;
+  --surface-2: #193b47;
+  --text: #e4f1f5;
+  --muted: #84a3ac;
+  --border: #234958;
+  --shadow: rgba(3, 11, 14, 0.6);
+  --primary: #f98373;
+  --primary-hover: #fca79e;
+  --success: #0a9e72;
+  --danger: #c03830;
+}
+
 body {
-  background-color: midnightblue;
-  color: wheat;
+  background-color: var(--bg);
+  color: var(--contrast);
   font-size: 16px;
+  border-color: var(--border);
 }
 
 button {
+  transition: all 0.3s;
   padding: 16px 24px;
   font-size: 24px;
   font-weight: bold;
-  background-color: wheat;
-  color: midnightblue;
+  background-color: var(--primary);
+  color: var(--text);
   border-radius: 16px;
   border: none;
   cursor: pointer;
+
+  &:hover {
+    background-color: var(--primary-hover);
+  }
 }
