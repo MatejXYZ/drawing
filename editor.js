@@ -142,7 +142,7 @@ req.onupgradeneeded = () => {
 };
 req.onsuccess = () => (db = req.result);
 
-// download
+// save
 
 const saveButton = document.querySelector("button#save");
 saveButton.addEventListener("click", () => {
@@ -153,4 +153,16 @@ saveButton.addEventListener("click", () => {
     tx.objectStore(storeId).put(blob, imageId++);
     localStorage.setItem("idb-last-image", imageId);
   });
+});
+
+// download
+
+const downloadButton = document.querySelector("button#download");
+downloadButton.addEventListener("click", () => {
+  const url = canvas.toDataURL();
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = new Date(Date.now()).toISOString() + ".png";
+  a.click();
+  a.remove();
 });
