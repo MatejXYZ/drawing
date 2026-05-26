@@ -6,6 +6,7 @@
   border-radius: 8px;
   width: 90%;
   overflow: hidden;
+  margin-top: 16px;
 }
 
 figure > img {

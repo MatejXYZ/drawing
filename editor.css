@@ -23,6 +23,7 @@ canvas {
 
 form {
   padding: 24px;
+  user-select: none;
 }
 
 .canvas-control {
@@ -30,7 +31,7 @@ form {
 }
 
 input[type="radio"] {
-  visibility: hidden;
+  display: none;
 }
 
 label[for="eraser"],

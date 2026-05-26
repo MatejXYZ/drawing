@@ -11,6 +11,8 @@ nav > a {
   text-decoration: none;
   font-weight: bold;
   color: var(--text);
+  user-select: none;
+
   @media (max-width: 650px) {
     font-size: 16px;
   }
