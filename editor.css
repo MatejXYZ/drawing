@@ -1,37 +1,71 @@
 canvas {
+  width: 100%;
   touch-action: none;
   user-select: none;
   overscroll-behavior: contain;
-  width: 75%;
   max-width: 650px;
   cursor: crosshair;
 
   box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.35),
-    0 1px 0 rgba(255, 255, 255, 0.08);
-
-  @media screen and (max-width: 650px) {
-    width: 100%;
-  }
+    0 0 4px 1px rgba(255, 255, 255, 0.1),
+    0 0 16px 1px black;
 }
 
 #editor {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 75%;
+  @media screen and (max-width: 650px) {
+    width: 100%;
+  }
 }
 
 form {
-  padding: 24px;
+  width: 100%;
+  margin: 24px 0;
   user-select: none;
-}
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: left;
 
-.canvas-control {
-  padding: 24px;
+  & > div {
+    margin: 0 8px;
+    display: flex;
+    flex-direction: column;
+
+    & > label {
+      margin-bottom: 4px;
+    }
+  }
+
+  & .tools {
+    justify-content: center;
+  }
+
+  & .size {
+    display: flex;
+    border: solid 1px var(--border);
+    border-radius: 8px;
+    background-color: var(--surface);
+    box-shadow: 0 0 4px 8px var(--shadow);
+    overflow: hidden;
+  }
+
+  & input[type="range"] {
+    @media screen and (max-width: 650px) {
+      width: 124px;
+    }
+  }
 }
 
 input[type="radio"] {
   display: none;
+}
+
+label {
+  color: var(--text);
 }
 
 label[for="eraser"],
@@ -57,5 +91,22 @@ label[for="brush"] {
   &.active:hover {
     background-color: var(--surface-2);
     color: var(--primary-hover);
+  }
+}
+
+.canvas-control {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 24px;
+
+  & > button {
+    margin: 0 4px;
+    display: flex;
+
+    & > svg {
+      margin-left: 4px;
+    }
   }
 }

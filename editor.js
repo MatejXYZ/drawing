@@ -58,15 +58,32 @@ canvas.addEventListener("pointermove", (e) => {
 
 // toolbar events
 
+const form = document.querySelector("form");
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+});
+
 const colorInput = document.querySelector("input[type=color]");
 colorInput.addEventListener("change", (e) => {
   color = e.target.value;
 });
 
+const handleSizeChange = (val) => {
+  sizeInput.value = val;
+  sizeInput2.value = val;
+  brushSize = 1 + Math.pow(val / 100, 2) * 300;
+  console.log(brushSize);
+};
+
 const sizeInput = document.querySelector("input[type=range]");
 sizeInput.addEventListener("change", (e) => {
-  brushSize = e.target.value;
+  handleSizeChange(e.target.value);
 });
+const sizeInput2 = document.querySelector("input[type=number]");
+sizeInput2.addEventListener("change", (e) => {
+  handleSizeChange(e.target.value);
+});
+handleSizeChange(10);
 
 const brushRadio = document.querySelector("input[id=brush]");
 const brushRadioLabel = document.querySelector("label[for=brush]");
@@ -107,6 +124,8 @@ downloadButton.addEventListener("click", () => {
   a.click();
   a.remove();
 });
+
+// drawing
 
 const draw = (x, y) => {
   points.push({ x, y });
@@ -156,6 +175,8 @@ const tryDraw = (e) => {
     requestAnimationFrame(render);
   }
 };
+
+// page
 
 export const showEditor = () => {
   editorPage.style.display = "flex";
