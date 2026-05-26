@@ -8,11 +8,14 @@ export const showGallery = () => {
   loadImages((id, url, onload) => {
     const figure = document.createElement("figure");
     const img = document.createElement("img");
+    const icon = document.createElement("div");
+    icon.classList.add("icon");
 
     img.src = url;
     img.id = `image${id}`;
     img.alt = `Illustration ${id}`;
 
+    figure.appendChild(icon);
     figure.appendChild(img);
     container.appendChild(figure);
 
