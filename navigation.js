@@ -63,3 +63,14 @@ window.addEventListener("popstate", (e) => {
 });
 
 route();
+
+// offline
+
+const offlineIndicator = document.querySelector("#offline-indicator");
+
+window.addEventListener("online", () => {
+  offlineIndicator.style.display = "none";
+});
+window.addEventListener("offline", () => {
+  offlineIndicator.style.display = "flex";
+});

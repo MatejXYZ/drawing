@@ -1,3 +1,20 @@
+#offline-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 0;
+  background-color: var(--danger);
+  color: var(--text);
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+
+  @media (max-width: 650px) {
+    font-size: 12px;
+    padding: 6px 0;
+  }
+}
+
 nav {
   display: flex;
   justify-content: center;
