@@ -150,6 +150,17 @@ sizeInput2.addEventListener("change", (e) => {
 
 updateBrushSize(defaultSize);
 
+const actionSuccessSound = document.querySelector("#editor-action-sound");
+
+const playEditorActionSuccessSound = () => {
+  actionSuccessSound.currentTime = 0;
+
+  const playPromise = actionSuccessSound.play();
+  if (playPromise) {
+    playPromise.catch(() => {});
+  }
+};
+
 const brushRadio = document.querySelector("input[id=brush]");
 const brushRadioLabel = document.querySelector("label[for=brush]");
 const eraserRadio = document.querySelector("input[id=eraser]");
@@ -174,6 +185,7 @@ saveButton.addEventListener("click", () => {
   ifReadyDB(() => {
     canvas.toBlob((blob) => {
       saveBlobToDB(blob);
+      playEditorActionSuccessSound();
     });
   });
 });
@@ -188,6 +200,7 @@ downloadButton.addEventListener("click", () => {
   a.download = new Date(Date.now()).toISOString() + ".png";
   a.click();
   a.remove();
+  playEditorActionSuccessSound();
 });
 
 // drawing
