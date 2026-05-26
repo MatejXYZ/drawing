@@ -1,6 +1,75 @@
 import { loadImages } from "./database.js";
 
 const container = document.querySelector("#gallery");
+
+// modal
+
+class GalleryItem extends HTMLElement {
+  constructor() {
+    super();
+
+    this.imageUrl = "";
+    this.imageAlt = "";
+    this.imageId = "";
+    this.icon = document.createElement("div");
+    this.img = document.createElement("img");
+
+    this.icon.className = "icon";
+    this.addEventListener("click", this.handleActivate);
+    this.addEventListener("keydown", this.handleKeydown);
+  }
+
+  connectedCallback() {
+    this.tabIndex = 0;
+    this.setAttribute("role", "button");
+
+    if (!this.img.isConnected) {
+      this.append(this.icon, this.img);
+    }
+
+    this.sync();
+  }
+
+  set data({ id, url, alt }) {
+    this.imageId = id;
+    this.imageUrl = url;
+    this.imageAlt = alt;
+    this.sync();
+  }
+
+  handleActivate = () => {
+    if (!this.imageUrl) return;
+
+    this.dispatchEvent(
+      new CustomEvent("open-image", {
+        bubbles: true,
+        detail: {
+          alt: this.imageAlt,
+          url: this.imageUrl,
+        },
+      }),
+    );
+  };
+
+  handleKeydown = (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+
+    event.preventDefault();
+    this.handleActivate();
+  };
+
+  sync() {
+    if (!this.isConnected || !this.imageUrl) return;
+
+    this.img.src = this.imageUrl;
+    this.img.id = `image${this.imageId}`;
+    this.img.alt = this.imageAlt;
+    this.setAttribute("aria-label", `Open ${this.imageAlt}`);
+  }
+}
+
+customElements.define("gallery-item", GalleryItem);
+
 const galleryUrls = [];
 const dialog = document.createElement("dialog");
 const dialogContent = document.createElement("div");
@@ -22,6 +91,10 @@ dialogImage.className = "gallery-modal__image";
 dialogContent.append(closeButton, dialogImage);
 dialog.append(dialogContent);
 document.body.appendChild(dialog);
+
+container.addEventListener("open-image", (event) => {
+  openModal(event.detail.url, event.detail.alt);
+});
 
 const closeModal = () => {
   if (dialog.open) {
@@ -51,6 +124,8 @@ dialog.addEventListener("close", () => {
   dialogImage.alt = "";
 });
 
+// page
+
 export const showGallery = () => {
   container.style.display = "grid";
   container.classList.toggle("hidden", false);
@@ -60,33 +135,12 @@ export const showGallery = () => {
   }
 
   loadImages((id, url) => {
-    const figure = document.createElement("figure");
-    const img = document.createElement("img");
-    const icon = document.createElement("div");
-    icon.classList.add("icon");
+    const item = document.createElement("gallery-item");
+    const alt = `Illustration ${id}`;
 
     galleryUrls.push(url);
-    img.src = url;
-    img.id = `image${id}`;
-    img.alt = `Illustration ${id}`;
-    figure.tabIndex = 0;
-    figure.setAttribute("role", "button");
-    figure.setAttribute("aria-label", `Open ${img.alt}`);
-
-    figure.addEventListener("click", () => {
-      openModal(url, img.alt);
-    });
-
-    figure.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        openModal(url, img.alt);
-      }
-    });
-
-    figure.appendChild(icon);
-    figure.appendChild(img);
-    container.appendChild(figure);
+    item.data = { id, url, alt };
+    container.appendChild(item);
   });
 };
 
