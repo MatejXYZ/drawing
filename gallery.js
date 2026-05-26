@@ -4,6 +4,70 @@ const container = document.querySelector("#gallery");
 
 // modal
 
+function GalleryModal(host) {
+  this.host = host;
+  this.dialog = document.createElement("dialog");
+  this.dialogContent = document.createElement("div");
+  this.closeButton = document.createElement("button");
+  this.dialogImage = document.createElement("img");
+
+  this.dialog.className = "gallery-modal";
+  this.dialog.setAttribute("aria-label", "Image preview");
+
+  this.dialogContent.className = "gallery-modal__content";
+
+  this.closeButton.type = "button";
+  this.closeButton.className = "gallery-modal__close";
+  this.closeButton.setAttribute("aria-label", "Close image preview");
+  this.closeButton.textContent = "×";
+
+  this.dialogImage.className = "gallery-modal__image";
+
+  this.dialogContent.append(this.closeButton, this.dialogImage);
+  this.dialog.append(this.dialogContent);
+  document.body.appendChild(this.dialog);
+
+  this.boundHandleOpenImage = this.handleOpenImage.bind(this);
+  this.boundHandleDialogClick = this.handleDialogClick.bind(this);
+  this.boundHandleDialogClose = this.handleDialogClose.bind(this);
+  this.boundClose = this.close.bind(this);
+
+  this.host.addEventListener("open-image", this.boundHandleOpenImage);
+  this.closeButton.addEventListener("click", this.boundClose);
+  this.dialog.addEventListener("click", this.boundHandleDialogClick);
+  this.dialog.addEventListener("close", this.boundHandleDialogClose);
+}
+
+GalleryModal.prototype.handleOpenImage = function (event) {
+  this.open(event.detail.url, event.detail.alt);
+};
+
+GalleryModal.prototype.handleDialogClick = function (event) {
+  if (event.target === this.dialog) {
+    this.close();
+  }
+};
+
+GalleryModal.prototype.handleDialogClose = function () {
+  this.dialogImage.removeAttribute("src");
+  this.dialogImage.alt = "";
+};
+
+GalleryModal.prototype.open = function (url, alt) {
+  this.dialogImage.src = url;
+  this.dialogImage.alt = alt;
+
+  if (!this.dialog.open) {
+    this.dialog.showModal();
+  }
+};
+
+GalleryModal.prototype.close = function () {
+  if (this.dialog.open) {
+    this.dialog.close();
+  }
+};
+
 class GalleryItem extends HTMLElement {
   constructor() {
     super();
@@ -71,58 +135,7 @@ class GalleryItem extends HTMLElement {
 customElements.define("gallery-item", GalleryItem);
 
 const galleryUrls = [];
-const dialog = document.createElement("dialog");
-const dialogContent = document.createElement("div");
-const closeButton = document.createElement("button");
-const dialogImage = document.createElement("img");
-
-dialog.className = "gallery-modal";
-dialog.setAttribute("aria-label", "Image preview");
-
-dialogContent.className = "gallery-modal__content";
-
-closeButton.type = "button";
-closeButton.className = "gallery-modal__close";
-closeButton.setAttribute("aria-label", "Close image preview");
-closeButton.textContent = "×";
-
-dialogImage.className = "gallery-modal__image";
-
-dialogContent.append(closeButton, dialogImage);
-dialog.append(dialogContent);
-document.body.appendChild(dialog);
-
-container.addEventListener("open-image", (event) => {
-  openModal(event.detail.url, event.detail.alt);
-});
-
-const closeModal = () => {
-  if (dialog.open) {
-    dialog.close();
-  }
-};
-
-const openModal = (url, alt) => {
-  dialogImage.src = url;
-  dialogImage.alt = alt;
-
-  if (!dialog.open) {
-    dialog.showModal();
-  }
-};
-
-closeButton.addEventListener("click", closeModal);
-
-dialog.addEventListener("click", (event) => {
-  if (event.target === dialog) {
-    closeModal();
-  }
-});
-
-dialog.addEventListener("close", () => {
-  dialogImage.removeAttribute("src");
-  dialogImage.alt = "";
-});
+const galleryModal = new GalleryModal(container);
 
 // page
 
@@ -145,7 +158,7 @@ export const showGallery = () => {
 };
 
 export const hideGallery = () => {
-  closeModal();
+  galleryModal.close();
   galleryUrls.forEach((url) => URL.revokeObjectURL(url));
   galleryUrls.length = 0;
   container.style.display = "none";
