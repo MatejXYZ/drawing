@@ -72,6 +72,8 @@ const brushRadio = document.querySelector("input[id=brush]");
 const brushRadioLabel = document.querySelector("label[for=brush]");
 const eraserRadio = document.querySelector("input[id=eraser]");
 const eraserRadioLabel = document.querySelector("label[for=eraser]");
+brushRadioLabel.classList.toggle("active", true);
+eraserRadioLabel.classList.toggle("active", false);
 brushRadio.addEventListener("change", (e) => {
   isEraser = false;
   brushRadioLabel.classList.toggle("active", true);
@@ -156,7 +158,7 @@ const tryDraw = (e) => {
 };
 
 export const showEditor = () => {
-  editorPage.classList.toggle("hidden", false);
+  editorPage.style.display = "flex";
 
   ctx.fillStyle = "#fff";
   ctx.fillRect(0, 0, 1000, 1000);
@@ -165,5 +167,5 @@ export const showEditor = () => {
 };
 
 export const hideEditor = () => {
-  editorPage.classList.toggle("hidden", true);
+  editorPage.style.display = "none";
 };

@@ -3,6 +3,7 @@ import { loadImages } from "./database.js";
 const container = document.querySelector("#gallery");
 
 export const showGallery = () => {
+  container.style.display = "grid";
   container.classList.toggle("hidden", false);
   loadImages((id, url, onload) => {
     const figure = document.createElement("figure");
@@ -20,6 +21,7 @@ export const showGallery = () => {
 };
 
 export const hideGallery = () => {
+  container.style.display = "none";
   container.classList.toggle("hidden", true);
   container.innerHTML = "";
 };
