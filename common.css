@@ -54,6 +54,12 @@ button {
   }
 }
 
+main {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
 main > div.hidden {
   visibility: collapse;
 }
