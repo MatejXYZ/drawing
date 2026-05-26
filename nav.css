@@ -2,8 +2,7 @@ nav {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-bottom: solid black;
-  background-color: var(--surface);
+  border-bottom: solid 1px var(--border);
 }
 
 nav > a {
@@ -12,14 +11,22 @@ nav > a {
   text-decoration: none;
   font-weight: bold;
   color: var(--text);
-  @media (max-width: 600px) {
-    & {
-      font-size: 24px;
-    }
+  @media (max-width: 650px) {
+    font-size: 16px;
+  }
+
+  &.active {
+    background-color: var(--surface-2);
+    color: var(--primary);
   }
 
   &:hover {
+    background-color: var(--surface-2);
+    color: var(--text);
   }
-  &.active {
+
+  &.active:hover {
+    background-color: var(--surface-2);
+    color: var(--primary-hover);
   }
 }

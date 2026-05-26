@@ -1,8 +1,34 @@
 import { hideEditor, showEditor } from "./editor.js";
 import { hideGallery, showGallery } from "./gallery.js";
 
-const showPage = (path) => {
-  switch (path) {
+// navbar
+
+const editorLink = document.querySelector("nav a[href=index]");
+const galleryLink = document.querySelector("nav a[href=gallery]");
+
+const toggleActiveOn = (el) => {
+  el.classList.toggle("active", true);
+};
+const toggleActiveOff = (el) => {
+  el.classList.toggle("active", false);
+};
+
+const updateActiveLink = (page) => {
+  switch (page) {
+    case "gallery":
+      toggleActiveOn(galleryLink);
+      toggleActiveOff(editorLink);
+      break;
+    default:
+      toggleActiveOn(editorLink);
+      toggleActiveOff(galleryLink);
+  }
+};
+
+// navigation
+
+const showPage = (page) => {
+  switch (page) {
     case "gallery":
       showGallery();
       hideEditor();
@@ -17,14 +43,18 @@ const route = () => {
   const params = new URLSearchParams(window.location.search);
   const page = params.get("page");
   showPage(page);
+
+  updateActiveLink(page);
 };
 
 document.addEventListener("click", (e) => {
   if (e.target.tagName == "A") {
     e.preventDefault();
-    const path = e.target.getAttribute("href");
-    history.pushState("", "", "?page=" + path);
-    showPage(path);
+    const page = e.target.getAttribute("href");
+    history.pushState("", "", "?page=" + page);
+    showPage(page);
+
+    updateActiveLink(page);
   }
 });
 
