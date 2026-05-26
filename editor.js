@@ -17,7 +17,16 @@ let isEraser = false;
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 
-const rect = canvas.getBoundingClientRect();
+let rect = canvas.getBoundingClientRect();
+
+const resize = () => {
+  rect = canvas.getBoundingClientRect();
+  scale = 1000 / rect.width;
+};
+
+window.addEventListener("resize", resize);
+
+resize();
 
 // drawing
 
