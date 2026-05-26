@@ -68,22 +68,87 @@ colorInput.addEventListener("change", (e) => {
   color = e.target.value;
 });
 
-const handleSizeChange = (val) => {
-  sizeInput.value = val;
-  sizeInput2.value = val;
-  brushSize = 1 + Math.pow(val / 100, 2) * 300;
-  console.log(brushSize);
+const sizeInput = document.querySelector("input[type=range]");
+const sizeInput2 = document.querySelector("input[type=number]");
+const minSize = Number(sizeInput.min);
+const maxSize = Number(sizeInput.max);
+const defaultSize = 10;
+
+const clampSizeValue = (value) => {
+  const parsedValue = Number(value);
+
+  if (!Number.isFinite(parsedValue)) {
+    return null;
+  }
+
+  return Math.min(maxSize, Math.max(minSize, Math.round(parsedValue)));
 };
 
-const sizeInput = document.querySelector("input[type=range]");
-sizeInput.addEventListener("change", (e) => {
-  handleSizeChange(e.target.value);
+const updateBrushSize = (value) => {
+  sizeInput.value = value;
+  sizeInput2.value = value;
+  sizeInput2.setCustomValidity("");
+  // exponential size for good UX
+  brushSize = 1 + Math.pow(value / maxSize, 2) * 300;
+};
+
+// fn for numeral input which allows arbitrary values
+const validateSizeField = (value) => {
+  if (value.trim() === "") {
+    sizeInput2.setCustomValidity(
+      `Enter a size between ${minSize} and ${maxSize}.`,
+    );
+    return false;
+  }
+
+  const parsedValue = Number(value);
+  if (
+    !Number.isFinite(parsedValue) ||
+    parsedValue < minSize ||
+    parsedValue > maxSize
+  ) {
+    sizeInput2.setCustomValidity(
+      `Size must stay between ${minSize} and ${maxSize}.`,
+    );
+    return false;
+  }
+
+  sizeInput2.setCustomValidity("");
+  return true;
+};
+
+const commitSizeValue = (value) => {
+  const normalizedValue = clampSizeValue(value);
+
+  // clamp can return non-null
+  if (normalizedValue === null) {
+    sizeInput2.reportValidity();
+    updateBrushSize(sizeInput.value);
+    return;
+  }
+
+  updateBrushSize(normalizedValue);
+};
+
+sizeInput.addEventListener("input", (e) => {
+  commitSizeValue(e.target.value);
 });
-const sizeInput2 = document.querySelector("input[type=number]");
+
+sizeInput2.addEventListener("input", (e) => {
+  const rawValue = e.target.value;
+
+  if (!validateSizeField(rawValue)) {
+    return;
+  }
+
+  commitSizeValue(rawValue);
+});
+
 sizeInput2.addEventListener("change", (e) => {
-  handleSizeChange(e.target.value);
+  commitSizeValue(e.target.value);
 });
-handleSizeChange(10);
+
+updateBrushSize(defaultSize);
 
 const brushRadio = document.querySelector("input[id=brush]");
 const brushRadioLabel = document.querySelector("label[for=brush]");
@@ -185,6 +250,10 @@ export const showEditor = () => {
   ctx.fillRect(0, 0, 1000, 1000);
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
+
+  requestAnimationFrame(() => {
+    sizeInput2.focus({ preventScroll: true });
+  });
 };
 
 export const hideEditor = () => {
