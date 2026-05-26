@@ -27,7 +27,7 @@ export const loadImages = (onload) => {
   };
 
   req.onsuccess = () => {
-    const tx = db.transaction(storeId, "readonly");
+    const tx = req.result.transaction(storeId, "readonly");
     const store = tx.objectStore(storeId);
 
     const keysReq = store.getAllKeys();
@@ -44,7 +44,7 @@ export const loadImages = (onload) => {
 
           const url = URL.createObjectURL(blob);
 
-          onload(id, url, () => URL.revokeObjectURL(url));
+          onload(id, url);
         };
       });
     };
