@@ -16,12 +16,72 @@ let isEraser = false;
 
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
-
 let rect = canvas.getBoundingClientRect();
+
+// cursor
+
+const brushCursor = document.querySelector("#cursor");
+
+const svgNamespace = "http://www.w3.org/2000/svg";
+const redrawBrushCursor = () => {
+  const diameter = brushSize / scale;
+  const strokeWidth = 1;
+  const center = diameter / 2;
+  const radius = Math.max(center - strokeWidth / 2, 0.5);
+  const svg = document.createElementNS(svgNamespace, "svg");
+  const outerCircle = document.createElementNS(svgNamespace, "circle");
+  const innerCircle = document.createElementNS(svgNamespace, "circle");
+
+  brushCursor.style.width = `${diameter}px`;
+  brushCursor.style.height = `${diameter}px`;
+
+  svg.setAttribute("width", String(diameter));
+  svg.setAttribute("height", String(diameter));
+  svg.setAttribute("viewBox", `0 0 ${diameter} ${diameter}`);
+
+  for (const circle of [outerCircle, innerCircle]) {
+    circle.setAttribute("cx", String(center));
+    circle.setAttribute("cy", String(center));
+    circle.setAttribute("r", String(radius));
+    circle.setAttribute("fill", "none");
+  }
+
+  outerCircle.setAttribute("stroke", "#fff");
+  outerCircle.setAttribute("stroke-width", String(strokeWidth + 1));
+
+  innerCircle.setAttribute("stroke", "#111");
+  innerCircle.setAttribute("stroke-width", String(strokeWidth));
+
+  svg.append(outerCircle, innerCircle);
+  brushCursor.replaceChildren(svg);
+};
+
+const positionBrushCursor = (clientX, clientY) => {
+  const diameter =
+    brushCursor.getBoundingClientRect().width || brushSize / scale;
+  brushCursor.style.left = `${clientX - diameter / 2}px`;
+  brushCursor.style.top = `${clientY - diameter / 2}px`;
+};
+
+const showBrushCursor = () => {
+  brushCursor.classList.toggle("visible", true);
+};
+
+const hideBrushCursor = () => {
+  brushCursor.classList.toggle("visible", false);
+};
+
+const syncBrushCursor = (e) => {
+  positionBrushCursor(e.clientX, e.clientY);
+  showBrushCursor();
+};
+
+// responsive canvas
 
 const resize = () => {
   rect = canvas.getBoundingClientRect();
   scale = 1000 / rect.width;
+  redrawBrushCursor();
 };
 
 window.addEventListener("resize", resize);
@@ -52,7 +112,16 @@ document.addEventListener("pointerup", (e) => {
   isDrawing = false;
 });
 
+canvas.addEventListener("pointerenter", (e) => {
+  showBrushCursor();
+});
+
+canvas.addEventListener("pointerleave", () => {
+  hideBrushCursor();
+});
+
 canvas.addEventListener("pointermove", (e) => {
+  positionBrushCursor(e.clientX, e.clientY);
   tryDraw(e);
 });
 
@@ -90,6 +159,7 @@ const updateBrushSize = (value) => {
   sizeInput2.setCustomValidity("");
   // exponential size for good UX
   brushSize = 1 + Math.pow(value / maxSize, 2) * 300;
+  redrawBrushCursor();
 };
 
 // fn for numeral input which allows arbitrary values

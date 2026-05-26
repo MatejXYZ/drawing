@@ -4,11 +4,31 @@ canvas {
   user-select: none;
   overscroll-behavior: contain;
   max-width: 650px;
-  cursor: crosshair;
+  cursor: none;
 
   box-shadow:
     0 0 4px 1px rgba(255, 255, 255, 0.1),
     0 0 16px 1px black;
+}
+
+#cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 20;
+  opacity: 0;
+  visibility: hidden;
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  & > svg {
+    display: block;
+    overflow: visible;
+  }
 }
 
 #editor {
