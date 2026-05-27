@@ -15,161 +15,154 @@ const nextIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 96
 
 // modal
 
-function GalleryModal(host) {
-  this.host = host;
-  this.dialog = document.createElement("dialog");
-  this.dialogContent = document.createElement("div");
-  this.closeButton = document.createElement("button");
-  this.deleteButton = document.createElement("button");
-  this.previousButton = document.createElement("button");
-  this.nextButton = document.createElement("button");
-  this.dialogImage = document.createElement("img");
-  this.currentItem = null;
+class GalleryModal {
+  constructor(host) {
+    this.host = host;
+    this.dialog = document.createElement("dialog");
+    this.dialogContent = document.createElement("div");
+    this.closeButton = document.createElement("button");
+    this.deleteButton = document.createElement("button");
+    this.previousButton = document.createElement("button");
+    this.nextButton = document.createElement("button");
+    this.dialogImage = document.createElement("img");
+    this.currentItem = null;
 
-  this.dialog.className = "gallery-modal";
+    this.dialog.className = "gallery-modal";
 
-  this.dialogContent.className = "gallery-modal__content";
+    this.dialogContent.className = "gallery-modal__content";
 
-  this.closeButton.type = "button";
-  this.closeButton.className = "gallery-modal__close";
-  this.closeButton.textContent = "×";
+    this.closeButton.type = "button";
+    this.closeButton.className = "gallery-modal__close";
+    this.closeButton.textContent = "×";
 
-  this.deleteButton.type = "button";
-  this.deleteButton.className = "gallery-modal__delete";
-  this.deleteButton.innerHTML = deleteIcon;
+    this.deleteButton.type = "button";
+    this.deleteButton.className = "gallery-modal__delete";
+    this.deleteButton.innerHTML = deleteIcon;
 
-  this.previousButton.type = "button";
-  this.previousButton.className =
-    "gallery-modal__nav gallery-modal__nav--previous";
-  this.previousButton.innerHTML = previousIcon;
+    this.previousButton.type = "button";
+    this.previousButton.className =
+      "gallery-modal__nav gallery-modal__nav--previous";
+    this.previousButton.innerHTML = previousIcon;
 
-  this.nextButton.type = "button";
-  this.nextButton.className = "gallery-modal__nav gallery-modal__nav--next";
-  this.nextButton.innerHTML = nextIcon;
+    this.nextButton.type = "button";
+    this.nextButton.className = "gallery-modal__nav gallery-modal__nav--next";
+    this.nextButton.innerHTML = nextIcon;
 
-  this.dialogImage.className = "gallery-modal__image";
+    this.dialogImage.className = "gallery-modal__image";
 
-  this.dialogContent.append(
-    this.closeButton,
-    this.deleteButton,
-    this.previousButton,
-    this.nextButton,
-    this.dialogImage,
-  );
-  this.dialog.append(this.dialogContent);
-  document.body.appendChild(this.dialog);
+    this.dialogContent.append(
+      this.closeButton,
+      this.deleteButton,
+      this.previousButton,
+      this.nextButton,
+      this.dialogImage,
+    );
+    this.dialog.append(this.dialogContent);
+    document.body.appendChild(this.dialog);
 
-  this.boundHandleOpenImage = this.handleOpenImage.bind(this);
-  this.boundHandleDialogClick = this.handleDialogClick.bind(this);
-  this.boundHandleDialogClose = this.handleDialogClose.bind(this);
-  this.boundHandleDelete = this.handleDelete.bind(this);
-  this.boundHandlePrevious = this.handlePrevious.bind(this);
-  this.boundHandleNext = this.handleNext.bind(this);
-  this.boundHandleKeydown = this.handleKeydown.bind(this);
-  this.boundClose = this.close.bind(this);
+    // events
 
-  this.host.addEventListener("open-image", this.boundHandleOpenImage);
-  this.closeButton.addEventListener("click", this.boundClose);
-  this.deleteButton.addEventListener("click", this.boundHandleDelete);
-  this.previousButton.addEventListener("click", this.boundHandlePrevious);
-  this.nextButton.addEventListener("click", this.boundHandleNext);
-  this.dialog.addEventListener("click", this.boundHandleDialogClick);
-  this.dialog.addEventListener("close", this.boundHandleDialogClose);
-  document.addEventListener("keydown", this.boundHandleKeydown);
+    this.boundHandleOpenImage = this.handleOpenImage.bind(this);
+    this.boundHandleDialogClick = this.handleDialogClick.bind(this);
+    this.boundHandleDialogClose = this.handleDialogClose.bind(this);
+    this.boundHandleDelete = this.handleDelete.bind(this);
+    this.boundHandlePrevious = this.handlePrevious.bind(this);
+    this.boundHandleNext = this.handleNext.bind(this);
+    this.boundHandleKeydown = this.handleKeydown.bind(this);
+    this.boundClose = this.close.bind(this);
+
+    this.host.addEventListener("open-image", this.boundHandleOpenImage);
+    this.closeButton.addEventListener("click", this.boundClose);
+    this.deleteButton.addEventListener("click", this.boundHandleDelete);
+    this.previousButton.addEventListener("click", this.boundHandlePrevious);
+    this.nextButton.addEventListener("click", this.boundHandleNext);
+    this.dialog.addEventListener("click", this.boundHandleDialogClick);
+    this.dialog.addEventListener("close", this.boundHandleDialogClose);
+    document.addEventListener("keydown", this.boundHandleKeydown);
+  }
+
+  handleOpenImage(event) {
+    this.open(event.detail.item, event.detail.url, event.detail.alt);
+  }
+  handleDialogClick(event) {
+    if (event.target === this.dialog) {
+      this.close();
+    }
+  }
+  handleDialogClose() {
+    const focusTarget = this.currentItem;
+
+    this.currentItem = null;
+    this.dialogImage.removeAttribute("src");
+    this.dialogImage.alt = "";
+    this.syncNavigation();
+
+    if (focusTarget?.isConnected) {
+      focusTarget.focus();
+    }
+  }
+  handleDelete() {
+    if (!this.currentItem) return;
+
+    this.currentItem.deleteImage(this.boundClose);
+  }
+  handlePrevious() {
+    this.navigate(-1);
+  }
+  handleNext() {
+    this.navigate(1);
+  }
+  handleKeydown(event) {
+    if (!this.dialog.open) return;
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      this.handlePrevious();
+    }
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      this.handleNext();
+    }
+  }
+  open(item, url, alt) {
+    this.currentItem = item;
+    this.dialogImage.src = url;
+    this.dialogImage.alt = alt;
+    this.syncNavigation();
+
+    if (!this.dialog.open) {
+      this.dialog.showModal();
+    }
+  }
+  close() {
+    if (this.dialog.open) {
+      this.dialog.close();
+    }
+  }
+  getAdjacentItem(step) {
+    if (!this.currentItem) return null;
+
+    // navigation follows the live DOM order so modal controls stay in sync after deletes
+    return step < 0
+      ? this.currentItem.previousElementSibling
+      : this.currentItem.nextElementSibling;
+  }
+  navigate(step) {
+    const item = this.getAdjacentItem(step);
+
+    if (!item) return;
+
+    this.open(item, item.imageUrl, item.imageAlt);
+  }
+  syncNavigation() {
+    const hasPrevious = Boolean(this.getAdjacentItem(-1));
+    const hasNext = Boolean(this.getAdjacentItem(1));
+
+    this.previousButton.disabled = !hasPrevious;
+    this.nextButton.disabled = !hasNext;
+  }
 }
-
-GalleryModal.prototype.handleOpenImage = function (event) {
-  this.open(event.detail.item, event.detail.url, event.detail.alt);
-};
-
-GalleryModal.prototype.handleDialogClick = function (event) {
-  if (event.target === this.dialog) {
-    this.close();
-  }
-};
-
-GalleryModal.prototype.handleDialogClose = function () {
-  const focusTarget = this.currentItem;
-
-  this.currentItem = null;
-  this.dialogImage.removeAttribute("src");
-  this.dialogImage.alt = "";
-  this.syncNavigation();
-
-  if (focusTarget?.isConnected) {
-    focusTarget.focus();
-  }
-};
-
-GalleryModal.prototype.handleDelete = function () {
-  if (!this.currentItem) return;
-
-  this.currentItem.deleteImage(this.boundClose);
-};
-
-GalleryModal.prototype.handlePrevious = function () {
-  this.navigate(-1);
-};
-
-GalleryModal.prototype.handleNext = function () {
-  this.navigate(1);
-};
-
-GalleryModal.prototype.handleKeydown = function (event) {
-  if (!this.dialog.open) return;
-
-  if (event.key === "ArrowLeft") {
-    event.preventDefault();
-    this.handlePrevious();
-  }
-
-  if (event.key === "ArrowRight") {
-    event.preventDefault();
-    this.handleNext();
-  }
-};
-
-GalleryModal.prototype.open = function (item, url, alt) {
-  this.currentItem = item;
-  this.dialogImage.src = url;
-  this.dialogImage.alt = alt;
-  this.syncNavigation();
-
-  if (!this.dialog.open) {
-    this.dialog.showModal();
-  }
-};
-
-GalleryModal.prototype.close = function () {
-  if (this.dialog.open) {
-    this.dialog.close();
-  }
-};
-
-GalleryModal.prototype.getAdjacentItem = function (step) {
-  if (!this.currentItem) return null;
-
-  // navigation follows the live DOM order so modal controls stay in sync after deletes
-  return step < 0
-    ? this.currentItem.previousElementSibling
-    : this.currentItem.nextElementSibling;
-};
-
-GalleryModal.prototype.navigate = function (step) {
-  const item = this.getAdjacentItem(step);
-
-  if (!item) return;
-
-  this.open(item, item.imageUrl, item.imageAlt);
-};
-
-GalleryModal.prototype.syncNavigation = function () {
-  const hasPrevious = Boolean(this.getAdjacentItem(-1));
-  const hasNext = Boolean(this.getAdjacentItem(1));
-
-  this.previousButton.disabled = !hasPrevious;
-  this.nextButton.disabled = !hasNext;
-};
 
 // fn that checks if gallery is empty (ie. no saved images)
 const syncEmptyState = () => {
@@ -178,6 +171,7 @@ const syncEmptyState = () => {
     container.childElementCount === 0 ? "block" : "none";
 };
 
+// web component
 class GalleryItem extends HTMLElement {
   constructor() {
     super();
@@ -279,7 +273,7 @@ customElements.define("gallery-item", GalleryItem);
 const galleryUrls = [];
 const galleryModal = new GalleryModal(container);
 
-// page
+// navigation
 
 export const showGallery = () => {
   section.style.display = "flex";

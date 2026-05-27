@@ -6,12 +6,11 @@ const editorPage = document.querySelector("#editor");
 // config
 
 const backgroundColor = "#fff";
-
 let scale = 2;
-
 let brushSize = 25;
 let color = "#000";
 let isEraser = false;
+const defaultSize = 25;
 
 // canvas init
 
@@ -19,11 +18,12 @@ const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 let rect = canvas.getBoundingClientRect();
 
-// cursor
+// dynamic cursor
 
 const brushCursor = document.querySelector("#cursor");
-
 const svgNamespace = "http://www.w3.org/2000/svg";
+
+// fn that redraws cursor UI on canvas
 const redrawBrushCursor = () => {
   const diameter = brushSize / scale;
   const strokeWidth = 1;
@@ -57,6 +57,7 @@ const redrawBrushCursor = () => {
   brushCursor.replaceChildren(svg);
 };
 
+// fn that updates cursor position on canvas
 const positionBrushCursor = (clientX, clientY) => {
   const diameter =
     brushCursor.getBoundingClientRect().width || brushSize / scale;
@@ -72,55 +73,50 @@ const hideBrushCursor = () => {
   brushCursor.classList.toggle("visible", false);
 };
 
-const syncBrushCursor = (e) => {
-  positionBrushCursor(e.clientX, e.clientY);
-  showBrushCursor();
-};
-
 // responsive canvas
 
-const resize = () => {
+// after resize update scale for operations with coordinates
+const handleWindowResize = () => {
   rect = canvas.getBoundingClientRect();
-  scale = 1000 / rect.width;
+  scale = 1000 / rect.width; // default canvas is 1000x1000
   redrawBrushCursor();
 };
 
-window.addEventListener("resize", resize);
+window.addEventListener("resize", handleWindowResize);
 
-resize();
+handleWindowResize();
 
 // drawing
 
 let isDrawing = false;
 
+// fn that calculates coordinates to scale
 const getCoordinates = (x, y) => {
   return [x * scale, y * scale];
 };
 
 let points = [];
 
-// pointer events
+// cursor pointer events
 
+canvas.addEventListener("pointerenter", (e) => {
+  showBrushCursor();
+});
+canvas.addEventListener("pointerleave", () => {
+  hideBrushCursor();
+});
+
+// drawing pointer events
 canvas.addEventListener("pointerdown", (e) => {
   canvas.setPointerCapture(e.pointerId);
   isDrawing = true;
   points = [];
   tryDraw(e);
 });
-
 document.addEventListener("pointerup", (e) => {
   canvas.releasePointerCapture(e.pointerId);
   isDrawing = false;
 });
-
-canvas.addEventListener("pointerenter", (e) => {
-  showBrushCursor();
-});
-
-canvas.addEventListener("pointerleave", () => {
-  hideBrushCursor();
-});
-
 canvas.addEventListener("pointermove", (e) => {
   positionBrushCursor(e.clientX, e.clientY);
   tryDraw(e);
@@ -142,8 +138,8 @@ const sizeInput = document.querySelector("input[type=range]");
 const sizeInput2 = document.querySelector("input[type=number]");
 const minSize = Number(sizeInput.min);
 const maxSize = Number(sizeInput.max);
-const defaultSize = 10;
 
+// fn that calculates expected brush size
 const clampSizeValue = (value) => {
   const parsedValue = Number(value);
 
@@ -158,7 +154,8 @@ const updateBrushSize = (value) => {
   sizeInput.value = value;
   sizeInput2.value = value;
   sizeInput2.setCustomValidity("");
-  // exponential size for good UX
+
+  // small increments at small size, large increments at large (classic brush size UX)
   brushSize = 1 + Math.pow(value / maxSize, 2) * 300;
   redrawBrushCursor();
 };
@@ -221,6 +218,7 @@ sizeInput2.addEventListener("change", (e) => {
 
 updateBrushSize(defaultSize);
 
+// 1 tool can be active at a time, either Brush or Eraser
 const brushRadio = document.querySelector("input[id=brush]");
 const brushRadioLabel = document.querySelector("label[for=brush]");
 const eraserRadio = document.querySelector("input[id=eraser]");
@@ -238,7 +236,7 @@ eraserRadio.addEventListener("change", (e) => {
   eraserRadioLabel.classList.toggle("active", true);
 });
 
-// save
+// save image to db
 
 const saveButton = document.querySelector("button#save");
 saveButton.addEventListener("click", () => {
@@ -253,7 +251,7 @@ saveButton.addEventListener("click", () => {
   });
 });
 
-// download
+// download image to filesystem
 
 const downloadButton = document.querySelector("button#download");
 downloadButton.addEventListener("click", () => {
@@ -268,10 +266,12 @@ downloadButton.addEventListener("click", () => {
 
 // drawing
 
+// logical draw
 const draw = (x, y) => {
   points.push({ x, y });
 };
 
+// render from point array
 const render = () => {
   let lColor = isEraser ? backgroundColor : color;
   ctx.beginPath();
@@ -297,6 +297,7 @@ const render = () => {
         const midX = (points[i].x + points[i + 1].x) / 2;
         const midY = (points[i].y + points[i + 1].y) / 2;
 
+        // curve to avoid jagged lines when drawing fast
         ctx.quadraticCurveTo(
           ...getCoordinates(points[i].x, points[i].y),
           ...getCoordinates(midX, midY),
@@ -308,6 +309,7 @@ const render = () => {
   }
 };
 
+// draw if app logic allows, render
 const tryDraw = (e) => {
   e.preventDefault();
   if (isDrawing) {
@@ -317,7 +319,7 @@ const tryDraw = (e) => {
   }
 };
 
-// page
+// navigation
 
 export const showEditor = () => {
   editorPage.style.display = "flex";

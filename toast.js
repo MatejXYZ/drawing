@@ -3,6 +3,8 @@ const actionSuccessSound = document.querySelector("#editor-action-sound");
 
 let toastTimeoutId = 0;
 
+const modalVisibleTime = 2500;
+
 const playSuccessSound = () => {
   if (!actionSuccessSound) return;
 
@@ -27,5 +29,5 @@ export const showSuccessFeedback = (message) => {
 
   toastTimeoutId = window.setTimeout(() => {
     toast.classList.remove("visible");
-  }, 2200);
+  }, modalVisibleTime);
 };

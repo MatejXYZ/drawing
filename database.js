@@ -4,6 +4,7 @@ const storeId = "s";
 let db;
 let imageId = localStorage.getItem("idb-last-image");
 
+// keep id in storage so duplicates are avoided in next sessions
 if (!imageId) {
   imageId = 0;
   localStorage.setItem("idb-last-image", imageId);
@@ -17,6 +18,7 @@ req.onupgradeneeded = () => {
 };
 req.onsuccess = () => (db = req.result);
 
+// fn that gets all images from db and calls callback on them
 export const loadImages = (onload) => {
   const req = window.indexedDB.open("db", 1);
 
@@ -51,6 +53,7 @@ export const loadImages = (onload) => {
   };
 };
 
+// wrapper fn that checks db exists
 export const ifReadyDB = (callback) => {
   if (!db) return console.warn("DB not ready");
   callback();
