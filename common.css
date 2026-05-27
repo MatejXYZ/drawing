@@ -62,7 +62,7 @@ main {
   flex-direction: column;
 }
 
-main > div.hidden {
+main > .hidden {
   visibility: collapse;
 }
 

@@ -1,7 +1,14 @@
 import { deleteImageFromDB, loadImages } from "./database.js";
 import { showSuccessFeedback } from "./toast.js";
 
-const container = document.querySelector("#gallery");
+// elements
+
+const section = document.querySelector("#gallery");
+const container = section.querySelector(".gallery-grid");
+const emptyStateMessage = section.querySelector(".gallery-empty");
+
+// icons
+
 const deleteIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>`;
 const previousIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg>`;
 const nextIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg>`;
@@ -142,7 +149,7 @@ GalleryModal.prototype.close = function () {
 GalleryModal.prototype.getAdjacentItem = function (step) {
   if (!this.currentItem) return null;
 
-  // Navigation follows the live DOM order so modal controls stay in sync after deletes.
+  // navigation follows the live DOM order so modal controls stay in sync after deletes
   return step < 0
     ? this.currentItem.previousElementSibling
     : this.currentItem.nextElementSibling;
@@ -162,6 +169,13 @@ GalleryModal.prototype.syncNavigation = function () {
 
   this.previousButton.disabled = !hasPrevious;
   this.nextButton.disabled = !hasNext;
+};
+
+// fn that checks if gallery is empty (ie. no saved images)
+const syncEmptyState = () => {
+  console.log("sync");
+  emptyStateMessage.style.display =
+    container.childElementCount === 0 ? "block" : "none";
 };
 
 class GalleryItem extends HTMLElement {
@@ -242,6 +256,7 @@ class GalleryItem extends HTMLElement {
       }
 
       this.remove();
+      syncEmptyState();
       showSuccessFeedback("Deleted image");
 
       if (ondone) {
@@ -267,8 +282,8 @@ const galleryModal = new GalleryModal(container);
 // page
 
 export const showGallery = () => {
-  container.style.display = "grid";
-  container.classList.toggle("hidden", false);
+  section.style.display = "flex";
+  section.classList.toggle("hidden", false);
 
   if (container.childElementCount > 0) {
     return;
@@ -281,6 +296,7 @@ export const showGallery = () => {
     galleryUrls.push(url);
     item.data = { id, url, alt };
     container.appendChild(item);
+    syncEmptyState();
   });
 };
 
@@ -288,7 +304,7 @@ export const hideGallery = () => {
   galleryModal.close();
   galleryUrls.forEach((url) => URL.revokeObjectURL(url));
   galleryUrls.length = 0;
-  container.style.display = "none";
-  container.classList.toggle("hidden", true);
+  section.style.display = "none";
+  section.classList.toggle("hidden", true);
   container.innerHTML = "";
 };

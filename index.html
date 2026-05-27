@@ -23,21 +23,22 @@
         <a href="gallery">Gallery</a>
     </nav>
     <main>
-        <div id="editor">
+        <section id="editor">
             <form>
-                <div>
-                    <label for="color">Color</label>
+                <fieldset>
+                    <legend>Color</legend>
                     <input id="color" type="color" autocomplete="off">
-                </div>
-                <div>
-                    <label for="size2">Size</label>
+                </fieldset>
+                <fieldset>
+                    <legend>Size</legend>
                     <div class="size">
                         <input id="size" type="range" min="1" max="100" autocomplete="off">
                         <input id="size2" type="number" min="1" max="100" step="1" required autofocus
                             inputmode="numeric" autocomplete="off">
                     </div>
-                </div>
-                <div class="tools">
+                </fieldset>
+                <fieldset class="tools">
+                    <legend>Tool</legend>
                     <div>
                         <label for="eraser">
                             <svg xmlns="http://www.w3.org/2000/svg" height="32px" viewBox="0 -960 960 960" width="32px"
@@ -48,6 +49,7 @@
                             </svg>
                         </label>
                         <input type="radio" id="eraser" name="tool" value="Eraser" autocomplete="off">
+                        <input type="radio" id="brush" name="tool" value="Brush" checked autocomplete="off">
                         <label for="brush">
                             <svg xmlns="http://www.w3.org/2000/svg" height="32px" viewBox="0 -960 960 960" width="32px"
                                 fill="currentColor">
@@ -59,12 +61,11 @@
                             </svg>
                         </label>
                     </div>
-                </div>
-                <input type="radio" id="brush" name="tool" value="Brush" checked autocomplete="off">
+                </fieldset>
             </form>
             <canvas width="1000" height="1000"></canvas>
             <div id="cursor"></div>
-            <div class="canvas-control">
+            <footer class="canvas-control">
                 <button id="save">Save to gallery<svg xmlns="http://www.w3.org/2000/svg" height="32px"
                         viewBox="0 -960 960 960" width="32px" fill="currentColor">
                         <path
@@ -75,10 +76,13 @@
                         <path
                             d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
                     </svg></button>
-            </div>
+            </footer>
             <audio id="editor-action-sound" preload="auto" src="./action_success.wav"></audio>
-        </div>
-        <div id="gallery"></div>
+        </section>
+        <section id="gallery">
+            <p class="gallery-empty">No saved drawings yet.</p>
+            <div class="gallery-grid"></div>
+        </section>
     </main>
     <div id="toast" class="toast"></div>
 </body>
