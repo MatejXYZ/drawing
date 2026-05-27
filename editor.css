@@ -41,6 +41,10 @@ canvas {
   }
 }
 
+#editor > .section-heading {
+  align-self: flex-start;
+}
+
 form {
   width: 100%;
   margin: 24px 0;
