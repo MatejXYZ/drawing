@@ -3,6 +3,8 @@ import { showSuccessFeedback } from "./toast.js";
 
 const container = document.querySelector("#gallery");
 const deleteIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>`;
+const previousIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg>`;
+const nextIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg>`;
 
 // modal
 
@@ -12,6 +14,8 @@ function GalleryModal(host) {
   this.dialogContent = document.createElement("div");
   this.closeButton = document.createElement("button");
   this.deleteButton = document.createElement("button");
+  this.previousButton = document.createElement("button");
+  this.nextButton = document.createElement("button");
   this.dialogImage = document.createElement("img");
   this.currentItem = null;
 
@@ -27,11 +31,22 @@ function GalleryModal(host) {
   this.deleteButton.className = "gallery-modal__delete";
   this.deleteButton.innerHTML = deleteIcon;
 
+  this.previousButton.type = "button";
+  this.previousButton.className =
+    "gallery-modal__nav gallery-modal__nav--previous";
+  this.previousButton.innerHTML = previousIcon;
+
+  this.nextButton.type = "button";
+  this.nextButton.className = "gallery-modal__nav gallery-modal__nav--next";
+  this.nextButton.innerHTML = nextIcon;
+
   this.dialogImage.className = "gallery-modal__image";
 
   this.dialogContent.append(
     this.closeButton,
     this.deleteButton,
+    this.previousButton,
+    this.nextButton,
     this.dialogImage,
   );
   this.dialog.append(this.dialogContent);
@@ -41,13 +56,19 @@ function GalleryModal(host) {
   this.boundHandleDialogClick = this.handleDialogClick.bind(this);
   this.boundHandleDialogClose = this.handleDialogClose.bind(this);
   this.boundHandleDelete = this.handleDelete.bind(this);
+  this.boundHandlePrevious = this.handlePrevious.bind(this);
+  this.boundHandleNext = this.handleNext.bind(this);
+  this.boundHandleKeydown = this.handleKeydown.bind(this);
   this.boundClose = this.close.bind(this);
 
   this.host.addEventListener("open-image", this.boundHandleOpenImage);
   this.closeButton.addEventListener("click", this.boundClose);
   this.deleteButton.addEventListener("click", this.boundHandleDelete);
+  this.previousButton.addEventListener("click", this.boundHandlePrevious);
+  this.nextButton.addEventListener("click", this.boundHandleNext);
   this.dialog.addEventListener("click", this.boundHandleDialogClick);
   this.dialog.addEventListener("close", this.boundHandleDialogClose);
+  document.addEventListener("keydown", this.boundHandleKeydown);
 }
 
 GalleryModal.prototype.handleOpenImage = function (event) {
@@ -61,9 +82,16 @@ GalleryModal.prototype.handleDialogClick = function (event) {
 };
 
 GalleryModal.prototype.handleDialogClose = function () {
+  const focusTarget = this.currentItem;
+
   this.currentItem = null;
   this.dialogImage.removeAttribute("src");
   this.dialogImage.alt = "";
+  this.syncNavigation();
+
+  if (focusTarget?.isConnected) {
+    focusTarget.focus();
+  }
 };
 
 GalleryModal.prototype.handleDelete = function () {
@@ -72,10 +100,33 @@ GalleryModal.prototype.handleDelete = function () {
   this.currentItem.deleteImage(this.boundClose);
 };
 
+GalleryModal.prototype.handlePrevious = function () {
+  this.navigate(-1);
+};
+
+GalleryModal.prototype.handleNext = function () {
+  this.navigate(1);
+};
+
+GalleryModal.prototype.handleKeydown = function (event) {
+  if (!this.dialog.open) return;
+
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    this.handlePrevious();
+  }
+
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+    this.handleNext();
+  }
+};
+
 GalleryModal.prototype.open = function (item, url, alt) {
   this.currentItem = item;
   this.dialogImage.src = url;
   this.dialogImage.alt = alt;
+  this.syncNavigation();
 
   if (!this.dialog.open) {
     this.dialog.showModal();
@@ -86,6 +137,31 @@ GalleryModal.prototype.close = function () {
   if (this.dialog.open) {
     this.dialog.close();
   }
+};
+
+GalleryModal.prototype.getAdjacentItem = function (step) {
+  if (!this.currentItem) return null;
+
+  // Navigation follows the live DOM order so modal controls stay in sync after deletes.
+  return step < 0
+    ? this.currentItem.previousElementSibling
+    : this.currentItem.nextElementSibling;
+};
+
+GalleryModal.prototype.navigate = function (step) {
+  const item = this.getAdjacentItem(step);
+
+  if (!item) return;
+
+  this.open(item, item.imageUrl, item.imageAlt);
+};
+
+GalleryModal.prototype.syncNavigation = function () {
+  const hasPrevious = Boolean(this.getAdjacentItem(-1));
+  const hasNext = Boolean(this.getAdjacentItem(1));
+
+  this.previousButton.disabled = !hasPrevious;
+  this.nextButton.disabled = !hasNext;
 };
 
 class GalleryItem extends HTMLElement {
