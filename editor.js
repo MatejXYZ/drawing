@@ -1,4 +1,5 @@
 import { ifReadyDB, saveBlobToDB } from "./database.js";
+import { showSuccessFeedback } from "./toast.js";
 
 const editorPage = document.querySelector("#editor");
 
@@ -220,17 +221,6 @@ sizeInput2.addEventListener("change", (e) => {
 
 updateBrushSize(defaultSize);
 
-const actionSuccessSound = document.querySelector("#editor-action-sound");
-
-const playEditorActionSuccessSound = () => {
-  actionSuccessSound.currentTime = 0;
-
-  const playPromise = actionSuccessSound.play();
-  if (playPromise) {
-    playPromise.catch(() => {});
-  }
-};
-
 const brushRadio = document.querySelector("input[id=brush]");
 const brushRadioLabel = document.querySelector("label[for=brush]");
 const eraserRadio = document.querySelector("input[id=eraser]");
@@ -254,8 +244,11 @@ const saveButton = document.querySelector("button#save");
 saveButton.addEventListener("click", () => {
   ifReadyDB(() => {
     canvas.toBlob((blob) => {
-      saveBlobToDB(blob);
-      playEditorActionSuccessSound();
+      if (!blob) return;
+
+      saveBlobToDB(blob, () => {
+        showSuccessFeedback("Saved to gallery");
+      });
     });
   });
 });
@@ -270,7 +263,7 @@ downloadButton.addEventListener("click", () => {
   a.download = new Date(Date.now()).toISOString() + ".png";
   a.click();
   a.remove();
-  playEditorActionSuccessSound();
+  showSuccessFeedback("Download started");
 });
 
 // drawing

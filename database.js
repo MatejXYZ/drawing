@@ -56,10 +56,14 @@ export const ifReadyDB = (callback) => {
   callback();
 };
 
-export const saveBlobToDB = (blob) => {
+export const saveBlobToDB = (blob, ondone) => {
   const tx = db.transaction(storeId, "readwrite");
   tx.objectStore(storeId).put(blob, imageId++);
   localStorage.setItem("idb-last-image", imageId);
+
+  if (ondone) {
+    tx.oncomplete = () => ondone();
+  }
 };
 
 export const deleteImageFromDB = (id, ondone) => {

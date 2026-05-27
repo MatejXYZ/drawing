@@ -65,3 +65,31 @@ main {
 main > div.hidden {
   visibility: collapse;
 }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 1;
+  min-width: min(320px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-2);
+  box-shadow: 0 20px 36px var(--shadow);
+  color: var(--text);
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, 24px);
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
