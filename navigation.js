@@ -78,9 +78,15 @@ route();
 
 const offlineIndicator = document.querySelector("#offline-indicator");
 
+const syncOfflineIndicator = () => {
+  offlineIndicator.style.display = navigator.onLine ? "none" : "flex";
+};
+
 window.addEventListener("online", () => {
-  offlineIndicator.style.display = "none";
+  syncOfflineIndicator();
 });
 window.addEventListener("offline", () => {
-  offlineIndicator.style.display = "flex";
+  syncOfflineIndicator();
 });
+
+syncOfflineIndicator();
