@@ -1,6 +1,7 @@
-import { loadImages } from "./database.js";
+import { deleteImageFromDB, loadImages } from "./database.js";
 
 const container = document.querySelector("#gallery");
+const deleteIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>`;
 
 // modal
 
@@ -9,37 +10,47 @@ function GalleryModal(host) {
   this.dialog = document.createElement("dialog");
   this.dialogContent = document.createElement("div");
   this.closeButton = document.createElement("button");
+  this.deleteButton = document.createElement("button");
   this.dialogImage = document.createElement("img");
+  this.currentItem = null;
 
   this.dialog.className = "gallery-modal";
-  this.dialog.setAttribute("aria-label", "Image preview");
 
   this.dialogContent.className = "gallery-modal__content";
 
   this.closeButton.type = "button";
   this.closeButton.className = "gallery-modal__close";
-  this.closeButton.setAttribute("aria-label", "Close image preview");
   this.closeButton.textContent = "×";
+
+  this.deleteButton.type = "button";
+  this.deleteButton.className = "gallery-modal__delete";
+  this.deleteButton.innerHTML = deleteIcon;
 
   this.dialogImage.className = "gallery-modal__image";
 
-  this.dialogContent.append(this.closeButton, this.dialogImage);
+  this.dialogContent.append(
+    this.closeButton,
+    this.deleteButton,
+    this.dialogImage,
+  );
   this.dialog.append(this.dialogContent);
   document.body.appendChild(this.dialog);
 
   this.boundHandleOpenImage = this.handleOpenImage.bind(this);
   this.boundHandleDialogClick = this.handleDialogClick.bind(this);
   this.boundHandleDialogClose = this.handleDialogClose.bind(this);
+  this.boundHandleDelete = this.handleDelete.bind(this);
   this.boundClose = this.close.bind(this);
 
   this.host.addEventListener("open-image", this.boundHandleOpenImage);
   this.closeButton.addEventListener("click", this.boundClose);
+  this.deleteButton.addEventListener("click", this.boundHandleDelete);
   this.dialog.addEventListener("click", this.boundHandleDialogClick);
   this.dialog.addEventListener("close", this.boundHandleDialogClose);
 }
 
 GalleryModal.prototype.handleOpenImage = function (event) {
-  this.open(event.detail.url, event.detail.alt);
+  this.open(event.detail.item, event.detail.url, event.detail.alt);
 };
 
 GalleryModal.prototype.handleDialogClick = function (event) {
@@ -49,11 +60,19 @@ GalleryModal.prototype.handleDialogClick = function (event) {
 };
 
 GalleryModal.prototype.handleDialogClose = function () {
+  this.currentItem = null;
   this.dialogImage.removeAttribute("src");
   this.dialogImage.alt = "";
 };
 
-GalleryModal.prototype.open = function (url, alt) {
+GalleryModal.prototype.handleDelete = function () {
+  if (!this.currentItem) return;
+
+  this.currentItem.deleteImage(this.boundClose);
+};
+
+GalleryModal.prototype.open = function (item, url, alt) {
+  this.currentItem = item;
   this.dialogImage.src = url;
   this.dialogImage.alt = alt;
 
@@ -77,10 +96,16 @@ class GalleryItem extends HTMLElement {
     this.imageId = "";
     this.icon = document.createElement("div");
     this.img = document.createElement("img");
+    this.deleteButton = document.createElement("button");
 
     this.icon.className = "icon";
+    this.deleteButton.type = "button";
+    this.deleteButton.className = "gallery-item__delete";
+
+    this.deleteButton.innerHTML = deleteIcon;
     this.addEventListener("click", this.handleActivate);
     this.addEventListener("keydown", this.handleKeydown);
+    this.deleteButton.addEventListener("click", this.handleDelete);
   }
 
   connectedCallback() {
@@ -88,7 +113,7 @@ class GalleryItem extends HTMLElement {
     this.setAttribute("role", "button");
 
     if (!this.img.isConnected) {
-      this.append(this.icon, this.img);
+      this.append(this.icon, this.img, this.deleteButton);
     }
 
     this.sync();
@@ -108,6 +133,7 @@ class GalleryItem extends HTMLElement {
       new CustomEvent("open-image", {
         bubbles: true,
         detail: {
+          item: this,
           alt: this.imageAlt,
           url: this.imageUrl,
         },
@@ -116,10 +142,35 @@ class GalleryItem extends HTMLElement {
   };
 
   handleKeydown = (event) => {
+    if (event.target !== this) return;
+
     if (event.key !== "Enter" && event.key !== " ") return;
 
     event.preventDefault();
     this.handleActivate();
+  };
+
+  handleDelete = (event) => {
+    event.stopPropagation();
+    this.deleteImage();
+  };
+
+  deleteImage = (ondone) => {
+    deleteImageFromDB(this.imageId, () => {
+      const urlIndex = galleryUrls.indexOf(this.imageUrl);
+
+      URL.revokeObjectURL(this.imageUrl);
+
+      if (urlIndex !== -1) {
+        galleryUrls.splice(urlIndex, 1);
+      }
+
+      this.remove();
+
+      if (ondone) {
+        ondone();
+      }
+    });
   };
 
   sync() {
@@ -128,7 +179,6 @@ class GalleryItem extends HTMLElement {
     this.img.src = this.imageUrl;
     this.img.id = `image${this.imageId}`;
     this.img.alt = this.imageAlt;
-    this.setAttribute("aria-label", `Open ${this.imageAlt}`);
   }
 }
 

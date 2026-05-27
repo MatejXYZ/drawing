@@ -48,6 +48,10 @@
     & > img {
       filter: brightness(0.5);
     }
+
+    & > .gallery-item__delete {
+      display: flex;
+    }
   }
 
   &:focus-visible {
@@ -63,6 +67,22 @@
   & > img {
     width: 100%;
     display: block;
+  }
+
+  & > .gallery-item__delete {
+    display: none;
+    background-color: var(--primary);
+    color: var(--text);
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+    padding: 4px;
+    border-radius: 999px;
+
+    &:hover {
+      background-color: var(--primary-hover);
+    }
   }
 }
 
@@ -104,6 +124,16 @@
   padding: 0;
   border-radius: 999px;
   font-size: 28px;
+  line-height: 1;
+}
+
+.gallery-modal__delete {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  padding: 8px 12px;
+  border-radius: 999px;
   line-height: 1;
 }
 
