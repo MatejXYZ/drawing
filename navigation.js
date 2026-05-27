@@ -3,8 +3,9 @@ import { hideGallery, showGallery } from "./gallery.js";
 
 // navbar
 
-const editorLink = document.querySelector("nav a[href=index]");
-const galleryLink = document.querySelector("nav a[href=gallery]");
+const nav = document.querySelector("nav");
+const editorLink = nav.querySelector('a[href="?page=index"]');
+const galleryLink = nav.querySelector('a[href="?page=gallery"]');
 
 const toggleActiveOn = (el) => {
   el.classList.toggle("active", true);
@@ -27,6 +28,12 @@ const updateActiveLink = (page) => {
 
 // navigation
 
+const getPageFromHref = (href) => {
+  const url = new URL(href, window.location.href);
+
+  return url.searchParams.get("page");
+};
+
 const showPage = (page) => {
   switch (page) {
     case "gallery":
@@ -47,20 +54,23 @@ const route = () => {
   updateActiveLink(page);
 };
 
-document.addEventListener("click", (e) => {
-  if (e.target.tagName == "A") {
-    e.preventDefault();
-    const page = e.target.getAttribute("href");
-    history.pushState("", "", "?page=" + page);
-    showPage(page);
+nav.addEventListener("click", (e) => {
+  if (e.defaultPrevented || e.button !== 0) return;
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
-    updateActiveLink(page);
-  }
-});
+  const link = e.target.closest("a");
+  if (!link) return;
 
-window.addEventListener("popstate", (e) => {
+  const nextUrl = new URL(link.href, window.location.href);
+  const page = getPageFromHref(nextUrl.href);
+  if (!page) return;
+
+  e.preventDefault();
+  history.pushState("", "", nextUrl);
   route();
 });
+
+window.addEventListener("popstate", route);
 
 route();
 
