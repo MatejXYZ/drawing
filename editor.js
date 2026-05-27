@@ -330,7 +330,7 @@ export const showEditor = () => {
   ctx.lineJoin = "round";
 
   requestAnimationFrame(() => {
-    sizeInput2.focus({ preventScroll: true });
+    sizeInput.focus({ preventScroll: true });
   });
 };
 
